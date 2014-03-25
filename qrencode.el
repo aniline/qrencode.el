@@ -75,5 +75,23 @@ MARGIN."
   (qrencode-string (buffer-substring-no-properties beg end)
                    :size size :level level :margin margin))
 
+;;;###autoload
+(defun* qrencode-region-insert (&optional size)
+  "Encode the region between mark and point and insert the image at the cursor."
+  (interactive "p")
+  (insert-image (create-image
+		 (save-excursion
+		   (qrencode-string (buffer-substring-no-properties (mark) (point))
+				    :size (if (> size 1) size 3))) 'png t)))
+
+;;;###autoload
+(defun* qrencode-and-paste (&optional size)
+  "Encode the last killed item and insert at point."
+  (interactive "p")
+  (insert-image (create-image
+		 (qrencode-string
+		  (substring-no-properties (current-kill 0)) :size (if (> size 1) size 3))
+		 'png t)))
+
 (provide 'qrencode)
 ;;; qrencode.el ends here

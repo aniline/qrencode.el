@@ -93,5 +93,40 @@ MARGIN."
 		  (substring-no-properties (current-kill 0)) :size (if (> size 1) size 3))
 		 'png t)))
 
+;;;###autoload
+(defun* qr-show (&optional size)
+  "QR encode the region and show the in a new frame"
+  (interactive "p")
+  (setq qr-frame (make-frame '((name . "QR")
+			       (width . 16) (height . 16)
+			       (menu-bar-lines . 0)
+			       (tool-bar-lines . 0)
+			       (minibuffer . nil))))
+  (let ((ppc-x (/ (frame-pixel-width qr-frame) (frame-width qr-frame)))
+	(ppc-y (/ (frame-pixel-height qr-frame) (frame-height qr-frame)))
+	;; Encode
+	(qr-img (create-image (save-excursion
+				(qrencode-string (buffer-substring-no-properties (mark) (point))
+						 :size (if (> size 1) size 3))) 'png t))
+	(img-s '(100 . 100)))
+
+    (setq img-s (image-size qr-img t))
+    (set-frame-size qr-frame
+		    (+ (/ (car img-s) ppc-x) 6)
+		    (+ (/ (cdr img-s) ppc-y) 6))
+
+    (save-excursion
+      (let ((buf (get-buffer-create "*QRCode*"))
+	    (clean-up '(lambda () (interactive)
+			 (delete-frame qr-frame))))
+	(set-buffer buf)
+	(erase-buffer)
+	(local-set-key (kbd "q") clean-up)
+	(local-set-key (kbd "Q") clean-up)
+	(insert "Hit 'q' to close\n\n")
+	(insert-image qr-img)
+	(goto-char (point-max))
+	(set-window-buffer (frame-root-window qr-frame) buf)))))
+
 (provide 'qrencode)
 ;;; qrencode.el ends here

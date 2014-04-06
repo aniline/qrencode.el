@@ -63,6 +63,7 @@ margin in the resulting image."
                       "-l" level
                       "-s" (number-to-string size)
                       "-m" (number-to-string margin)
+		      "--"
                       string))
         (error "Process `qrencode' returns non zero:\n%s" (buffer-string)))
     (buffer-string)))
@@ -112,7 +113,7 @@ MARGIN."
 
     (setq img-s (image-size qr-img t))
     (set-frame-size qr-frame
-		    (+ (/ (car img-s) ppc-x) 6)
+		    (+ (/ (car img-s) ppc-x) 8)
 		    (+ (/ (cdr img-s) ppc-y) 6))
 
     (save-excursion
